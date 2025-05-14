@@ -75,7 +75,7 @@ PSOCKET_DATA SocketNew( SOCKET WinSock, DWORD Type, BOOL UseIpv4, DWORD IPv4, PB
 
         if ( UseIpv4 )
         {
-            WinSock = Instance->Win32.WSASocketA( AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, NULL );
+            WinSock = Instance->Win32.WSASocketA( AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, 0 );
             if ( WinSock == INVALID_SOCKET )
             {
                 PRINTF( "WSASocketA Failed: %d\n", NtGetLastError() )
@@ -320,7 +320,7 @@ VOID SocketRead()
                  * this might not be the same as the total amount of data queued on the socket.
                  * because of this, we read for new data in a loop
                  */
-                if ( Instance->Win32.ioctlsocket( Socket->Socket, FIONREAD, &PartialData.Length ) == SOCKET_ERROR )
+                if ( Instance->Win32.ioctlsocket( Socket->Socket, FIONREAD, (u_long*)&PartialData.Length ) == SOCKET_ERROR )
                 {
                     PRINTF( "Failed to get the read size from %x : %d\n", Socket->ID, Socket->Type )
 
@@ -335,7 +335,7 @@ VOID SocketRead()
                 {
                     PartialData.Buffer = MmHeapAlloc( PartialData.Length );
 
-                    if ( ! RecvAll( Socket->Socket, PartialData.Buffer, PartialData.Length, &PartialData.Length ) ) {
+                    if ( ! RecvAll( Socket->Socket, PartialData.Buffer, PartialData.Length, (PDWORD)&PartialData.Length ) ) {
                         Failed    = TRUE;
                         ErrorCode = Instance->Win32.WSAGetLastError();
                     }

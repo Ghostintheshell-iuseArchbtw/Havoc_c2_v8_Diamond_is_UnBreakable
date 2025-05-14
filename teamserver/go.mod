@@ -2,6 +2,8 @@ module Havoc
 
 go 1.21.0
 
+toolchain go1.24.3
+
 require (
 	github.com/agext/levenshtein v1.2.3
 	github.com/apparentlymart/go-dump v0.0.0-20190214190832-042adf3cf4a0

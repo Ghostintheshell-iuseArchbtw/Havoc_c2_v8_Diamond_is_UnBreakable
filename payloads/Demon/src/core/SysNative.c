@@ -12,7 +12,7 @@ NTSTATUS NTAPI SysNtOpenThread(
     NTSTATUS   NtStatus  = STATUS_SUCCESS;
     SYS_CONFIG SysConfig = { 0 };
 
-    SYSCALL_INVOKE( NtOpenThread, ThreadHandle, DesiredAccess, ObjectAttributes, ClientId )
+    SYSCALL_INVOKE( NtOpenThread, ThreadHandle, DesiredAccess, ObjectAttributes, ClientId );
 
     return NtStatus;
 }

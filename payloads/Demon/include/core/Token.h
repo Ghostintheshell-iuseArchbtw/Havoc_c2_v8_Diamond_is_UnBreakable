@@ -134,6 +134,8 @@ BOOL TokenQueryOwner(
     IN  DWORD   Flags
 );
 
+BOOL TokenQueryTypeAndUser(HANDLE hToken, PDWORD pTokenType, PDWORD pIntegrity, PDWORD pImpersonationLevel, PBUFFER UserDomain);
+
 /* Token Vault Functions */
 DWORD TokenAdd(
     IN HANDLE hToken,
@@ -192,5 +194,7 @@ BOOL ImpersonateTokenInStore(
 );
 
 BOOL SysImpersonateLoggedOnUser( HANDLE hToken );
+
+BOOL IsNotCurrentUser(BOOL DoCheck, PBUFFER UserA, PBUFFER UserB);
 
 #endif

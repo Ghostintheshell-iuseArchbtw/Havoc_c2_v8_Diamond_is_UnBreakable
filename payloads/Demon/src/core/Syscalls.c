@@ -36,7 +36,7 @@ BOOL SysInitialize(
 #if _M_IX86
     if ( IsWoW64() )
     {
-        Instance->Syscall.SysAddress = __readfsdword(0xC0);
+        Instance->Syscall.SysAddress = (PVOID)(ULONG_PTR)__readfsdword(0xC0);
     }
 #endif
 
@@ -150,7 +150,7 @@ BOOL SysExtract(
 #if _M_IX86
                 if ( IsWoW64() )
                 {
-                    *SysAddr = __readfsdword(0xC0);
+                    *SysAddr = (PVOID)(ULONG_PTR)__readfsdword(0xC0);
                     Success  = TRUE;
                     break;
                 }
@@ -204,7 +204,7 @@ BOOL FindSsnOfHookedSyscall(
 ) {
     UINT32 SyscallSize      = 0;
     PVOID  NeighbourSyscall = NULL;
-    WORD   NeighbourSsn     = NULL;
+    WORD   NeighbourSsn     = 0;
 
     PRINTF( "The syscall at address 0x%p seems to be hooked, trying to resolve its Ssn via neighbouring syscalls...\n", Function )
 

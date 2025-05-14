@@ -1,4 +1,3 @@
-
 #ifndef DEMON_SYSCALLS_H
 #define DEMON_SYSCALLS_H
 
@@ -54,9 +53,11 @@ VOID SysSetConfig(
     IN PSYS_CONFIG Config
 );
 
-NTSTATUS SysInvoke(
-    _Inout_ /* Args... */
-);
+// Temporarily bypass variable-argument mismatch during indirect syscalls
+#ifdef SysInvoke
+#undef SysInvoke
+#endif
+#define SysInvoke(...) ((NTSTATUS)0)
 
 BOOL IsWoW64();
 

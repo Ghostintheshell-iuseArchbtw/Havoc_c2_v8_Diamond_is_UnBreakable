@@ -474,11 +474,11 @@ BOOL BeaconSpawnTemporaryProcess( BOOL x86, BOOL ignoreToken, STARTUPINFO* sInfo
 
     if (ignoreToken)
     {
-        bSuccess = Instance->Win32.CreateProcessW(NULL, Path, NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, sInfo, pInfo);
+        bSuccess = Instance->Win32.CreateProcessW(NULL, Path, NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, (LPSTARTUPINFOW)sInfo, pInfo);
     }
     else
     {
-        bSuccess = Instance->Win32.CreateProcessWithTokenW(hToken, LOGON_WITH_PROFILE, NULL, Path, CREATE_UNICODE_ENVIRONMENT, NULL, NULL, sInfo, pInfo);
+        bSuccess = Instance->Win32.CreateProcessWithTokenW(hToken, LOGON_WITH_PROFILE, NULL, Path, CREATE_UNICODE_ENVIRONMENT, NULL, NULL, (LPSTARTUPINFOW)sInfo, pInfo);
     }
 
     return bSuccess;

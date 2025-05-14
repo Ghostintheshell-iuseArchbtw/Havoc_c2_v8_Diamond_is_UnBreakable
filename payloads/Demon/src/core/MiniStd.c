@@ -50,7 +50,7 @@ WCHAR ToLowerCaseW( WCHAR C )
     return C > 0x40 && C < 0x5b ? C | 0x60 : C;
 }
 
-INT StringCompareIW( LPWSTR String1, LPWSTR String2 )
+INT StringCompareIW( LPCWSTR String1, LPCWSTR String2 )
 {
     for (; ToLowerCaseW( *String1 ) == ToLowerCaseW( *String2 ); String1++, String2++)
     {
@@ -58,7 +58,7 @@ INT StringCompareIW( LPWSTR String1, LPWSTR String2 )
             return 0;
     }
 
-    return ((*(LPWSTR)String1 < *(LPWSTR)String2) ? -1 : +1);
+    return ((*(LPCWSTR)String1 < *(LPCWSTR)String2) ? -1 : +1);
 
 }
 
@@ -313,4 +313,11 @@ UINT64 GetSystemFileTime( )
 BYTE NO_INLINE HideChar( BYTE C )
 {
     return C;
+}
+
+BOOL StringEndWithW(LPCWSTR str, LPCWSTR suffix) {
+    SIZE_T str_len = StringLengthW(str);
+    SIZE_T suffix_len = StringLengthW(suffix);
+    if (suffix_len > str_len) return FALSE;
+    return StringCompareW(str + str_len - suffix_len, suffix) == 0;
 }

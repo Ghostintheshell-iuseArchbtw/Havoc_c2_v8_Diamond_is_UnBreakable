@@ -22,8 +22,8 @@
 #define RVA( TYPE, DLLBASE, RVA )  ( TYPE ) ( ( PBYTE ) DLLBASE + RVA )
 #define DATA_FREE( d, l ) \
     if ( d ) { \
-        MemSet( d, 0, l ); \
-        Instance->Win32.LocalFree( d ); \
+        __builtin_memset( (PVOID)(d), 0, (SIZE_T)(l) ); \
+        Instance->Win32.LocalFree( (HLOCAL)(d) ); \
         d = NULL; \
     }
 
