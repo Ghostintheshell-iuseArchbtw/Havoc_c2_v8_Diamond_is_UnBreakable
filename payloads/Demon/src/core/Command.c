@@ -63,15 +63,13 @@ VOID CommandDispatcher( VOID )
             break;
         }
 
-        SleepObf();
-
         if ( ReachedKillDate() ) {
             KillDate();
         }
 
-        // simply call SleepObf until we reach working hours or the kill date (if set)
+        // Exit immediately if not in working hours - let main loop handle sleep timing
         if ( ! InWorkingHours() ) {
-            continue;
+            break;
         }
 
 #ifdef TRANSPORT_HTTP
@@ -152,6 +150,9 @@ VOID CommandDispatcher( VOID )
 
         /* push any new clients or output from the sockets */
         SocketPush();
+
+        // Exit after processing tasks to allow proper sleep timing in main loop
+        break;
 
     } while ( TRUE );
 
