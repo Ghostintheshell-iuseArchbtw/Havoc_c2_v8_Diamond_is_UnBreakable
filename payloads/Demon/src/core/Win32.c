@@ -856,31 +856,33 @@ NTSTATUS ProcessSnapShot(
         return STATUS_INVALID_PARAMETER;
     }
 
-    /* Get our system process list */
-    if ( ! NT_SUCCESS( NtStatus = SysNtQuerySystemInformation( SystemProcessInformation, NULL, 0, &Length ) ) )
-    {
-        PRINTF( "SystemProcessInformation Length: %d\n", Length );
-
-        /* just in case that some processes or threads where created between our calls */
-        Length += 0x1000;
-
-        /* allocate memory */
-        *SnapShot = MmHeapAlloc( Length );
-        if ( *SnapShot ) {
-            if ( ! NT_SUCCESS( NtStatus = SysNtQuerySystemInformation( SystemProcessInformation, *SnapShot, Length, &Length ) ) ) {
-                PRINTF( "NtQuerySystemInformation Failed: Status[%lx]\n", NtStatus )
-                goto LEAVE;
-            }
-        } else NtStatus = STATUS_NO_MEMORY;
-
-        *Size = Length;
-    } else {
-        /* we expected to fail. something doesn't seem right... */
-        NtStatus = STATUS_INVALID_PARAMETER;
+    /* initial call to get required buffer length */
+    NtStatus = SysNtQuerySystemInformation( SystemProcessInformation, NULL, 0, &Length );
+    if ( NtStatus != STATUS_INFO_LENGTH_MISMATCH ) {
+        return NtStatus;
     }
 
-    LEAVE:
-    return NtStatus;
+    PRINTF( "SystemProcessInformation Length: %d\n", Length );
+
+    /* just in case that some processes or threads were created between our calls */
+    Length += 0x1000;
+
+    /* allocate memory */
+    *SnapShot = MmHeapAlloc( Length );
+    if ( ! *SnapShot ) {
+        return STATUS_NO_MEMORY;
+    }
+
+    NtStatus = SysNtQuerySystemInformation( SystemProcessInformation, *SnapShot, Length, &Length );
+    if ( ! NT_SUCCESS( NtStatus ) ) {
+        PRINTF( "NtQuerySystemInformation Failed: Status[%lx]\n", NtStatus )
+        MmHeapFree( *SnapShot );
+        *SnapShot = NULL;
+        return NtStatus;
+    }
+
+    *Size = Length;
+    return STATUS_SUCCESS;
 }
 
 BOOL ReadLocalFile(
