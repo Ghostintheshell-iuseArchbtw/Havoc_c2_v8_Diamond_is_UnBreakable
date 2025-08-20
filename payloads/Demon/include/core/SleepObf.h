@@ -13,14 +13,16 @@
 #define SLEEPOBF_BYPASS_JMPRAX 0x1
 #define SLEEPOBF_BYPASS_JMPRBX 0x2
 
-#define OBF_JMP( i, p ) \
-    if ( JmpBypass == SLEEPOBF_BYPASS_JMPRAX ) {    \
-        Rop[ i ].Rax = U_PTR( p );                  \
-    } if ( JmpBypass == SLEEPOBF_BYPASS_JMPRBX ) {  \
-        Rop[ i ].Rbx = U_PTR( & p );                \
-    } else {                                        \
-        Rop[ i ].Rip = U_PTR( p );                  \
-    }
+#define OBF_JMP( i, p )                                           \
+    do {                                                          \
+        if ( JmpBypass == SLEEPOBF_BYPASS_JMPRAX ) {              \
+            Rop[ i ].Rax = U_PTR( p );                            \
+        } else if ( JmpBypass == SLEEPOBF_BYPASS_JMPRBX ) {       \
+            Rop[ i ].Rbx = U_PTR( p );                            \
+        } else {                                                  \
+            Rop[ i ].Rip = U_PTR( p );                            \
+        }                                                         \
+    } while (0)
 
 typedef struct
 {
