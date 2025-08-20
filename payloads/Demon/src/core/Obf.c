@@ -692,7 +692,8 @@ UINT32 SleepTime(
                 // seconds until start of working hours from current time
                 SleepTime += ( StartHour - SystemTime.wHour ) * 60 + ( StartMinute - SystemTime.wMinute );
             }
-            SleepTime *= 1000;
+            // SleepTime is calculated in minutes; convert to milliseconds
+            SleepTime *= 60 * 1000;
         }
     }
     // MaxVariation will be non-zero if sleep jitter was specified
