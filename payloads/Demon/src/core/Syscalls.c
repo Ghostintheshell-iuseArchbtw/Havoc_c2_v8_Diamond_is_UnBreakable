@@ -36,7 +36,7 @@ BOOL SysInitialize(
 #if _M_IX86
     if ( IsWoW64() )
     {
-        Instance->Syscall.SysAddress = __readfsdword(0xC0);
+        Instance->Syscall.SysAddress = C_PTR( __readfsdword( 0xC0 ) );
     }
 #endif
 
@@ -150,7 +150,7 @@ BOOL SysExtract(
 #if _M_IX86
                 if ( IsWoW64() )
                 {
-                    *SysAddr = __readfsdword(0xC0);
+                    *SysAddr = C_PTR( __readfsdword( 0xC0 ) );
                     Success  = TRUE;
                     break;
                 }
