@@ -44,22 +44,22 @@ DWORD GetReflectiveLoaderOffset( PVOID ReflectiveLdrAddr )
     PCHAR                   FunctionName        = NULL;
 
     NtHeaders           = RVA( PIMAGE_NT_HEADERS, ReflectiveLdrAddr, ( ( PIMAGE_DOS_HEADER ) ReflectiveLdrAddr )->e_lfanew );
-    ExportDir           = ReflectiveLdrAddr + Rva2Offset( NtHeaders->OptionalHeader.DataDirectory[ IMAGE_DIRECTORY_ENTRY_EXPORT ].VirtualAddress, ReflectiveLdrAddr );
-    AddrOfNames         = ReflectiveLdrAddr + Rva2Offset( ExportDir->AddressOfNames, ReflectiveLdrAddr );
-    AddrOfNameOrdinals  = ReflectiveLdrAddr + Rva2Offset( ExportDir->AddressOfNameOrdinals, ReflectiveLdrAddr );
+    ExportDir           = ReflectiveLdrAddr + Rva2Offset( NtHeaders->OptionalHeader.DataDirectory[ IMAGE_DIRECTORY_ENTRY_EXPORT ].VirtualAddress, (UINT_PTR)ReflectiveLdrAddr );
+    AddrOfNames         = (UINT_PTR)ReflectiveLdrAddr + Rva2Offset( ExportDir->AddressOfNames, (UINT_PTR)ReflectiveLdrAddr );
+    AddrOfNameOrdinals  = (UINT_PTR)ReflectiveLdrAddr + Rva2Offset( ExportDir->AddressOfNameOrdinals, (UINT_PTR)ReflectiveLdrAddr );
     FunctionCounter     = ExportDir->NumberOfNames;
 
     while ( FunctionCounter-- )
     {
-        FunctionName = ( PCHAR )( ReflectiveLdrAddr + Rva2Offset( DEREF_32( AddrOfNames ), ReflectiveLdrAddr ) );
+        FunctionName = ( PCHAR )( (UINT_PTR)ReflectiveLdrAddr + Rva2Offset( DEREF_32( AddrOfNames ), (UINT_PTR)ReflectiveLdrAddr ) );
         //                                  ReflectiveLoader                             KaynLoader
         if ( HashStringA( FunctionName ) == 0xa6caa1c5 || HashStringA( FunctionName ) == 0xffe885ef )
         {
             PRINTF( "FunctionName => %s\n", FunctionName );
-            AddrOfFunctions =   ReflectiveLdrAddr + Rva2Offset( ExportDir->AddressOfFunctions, ReflectiveLdrAddr );
+            AddrOfFunctions = (UINT_PTR)ReflectiveLdrAddr + Rva2Offset( ExportDir->AddressOfFunctions, (UINT_PTR)ReflectiveLdrAddr );
             AddrOfFunctions +=  ( DEREF_16( AddrOfNameOrdinals ) * sizeof( DWORD ) );
 
-            return Rva2Offset( DEREF_32( AddrOfFunctions ), ReflectiveLdrAddr );
+            return Rva2Offset( DEREF_32( AddrOfFunctions ), (UINT_PTR)ReflectiveLdrAddr );
         }
 
         AddrOfNames        += sizeof( DWORD );

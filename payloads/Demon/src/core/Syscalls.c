@@ -204,7 +204,7 @@ BOOL FindSsnOfHookedSyscall(
 ) {
     UINT32 SyscallSize      = 0;
     PVOID  NeighbourSyscall = NULL;
-    WORD   NeighbourSsn     = NULL;
+    WORD   NeighbourSsn     = 0;
 
     PRINTF( "The syscall at address 0x%p seems to be hooked, trying to resolve its Ssn via neighbouring syscalls...\n", Function )
 
