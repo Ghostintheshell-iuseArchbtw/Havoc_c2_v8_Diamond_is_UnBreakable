@@ -20,7 +20,7 @@ detect_distro() {
   . /etc/os-release
   case "$ID" in
     ubuntu|debian|kali)   echo "debian"  ;;
-    arch|manjaro|endeavouros) echo "arch" ;;
+    arch|garuda|manjaro|endeavouros) echo "arch" ;;
     *) die "Unsupported distribution: $ID" ;;
   esac
 }
@@ -75,7 +75,6 @@ build_havoc() {
   echo "[*] Fetching Go modules for teamserver…"
   pushd teamserver >/dev/null
     go mod download golang.org/x/sys
-    go mod download github.com/ugorji/go
   popd >/dev/null
 
   echo "[*] Building teamserver (musl static)…"
