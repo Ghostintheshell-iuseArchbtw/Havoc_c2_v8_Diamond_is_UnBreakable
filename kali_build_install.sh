@@ -43,16 +43,6 @@ sudo apt install -y \
 echo "[*] (Optional) Installing Python 3.10 if needed..."
 sudo apt install -y python3.10 python3.10-venv python3.10-dev || true
 
-echo "[*] Cloning your fork (if not already cloned)..."
-if [ ! -d "Patched_Fork_Of_Havoc_C2" ]; then
-  git clone https://github.com/Ghostintheshell-iuseArchbtw/Patched_Fork_Of_Havoc_C2.git
-  cd Patched_Fork_Of_Havoc_C2
-else
-  cd Patched_Fork_Of_Havoc_C2
-  echo "[*] Repository already exists. Pulling the latest changes..."
-  git pull
-fi
-
 echo "[*] Initializing submodules..."
 git submodule update --init --recursive
 
